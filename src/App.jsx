@@ -1,34 +1,45 @@
+import { Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar.jsx'
+import Home from './pages/Home.jsx'
+import Courses from './pages/Courses.jsx'
+import AddCourse from './pages/AddCourse.jsx'
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [courses, setCourses] = useState([
+    {
+      id: 1,
+      name: 'Intro to React',
+      description: 'Basics of React library',
+      subject: 'Web Development',
+      credits: 3,
+      teacher: 'Any Teacher'
+    }
+  ])
+
+  const addCourse = (course) => {
+    setCourses([...courses, { ...course, id: Date.now() }])
+  }
+
+  const deleteCourse = (id) => {
+    setCourses(courses.filter((course) => course.id !== id))
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/courses"
+          element={<Courses courses={courses} onDelete={deleteCourse} />}
+        />
+        <Route
+          path="/add-course"
+          element={<AddCourse onAdd={addCourse} />}
+        />
+      </Routes>
+    </div>
   )
 }
 

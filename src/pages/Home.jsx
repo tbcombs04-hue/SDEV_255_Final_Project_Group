@@ -1,8 +1,10 @@
-export default function Home() {
+function Home() {
   return (
     <div className="page">
-      <h1>Welcome to the Course Management System</h1>
-      <p>Manage your college courses easily and effectively.</p>
+      <h1>Welcome to the Course Manager</h1>
+      <p>Use the navigation above to manage courses.</p>
     </div>
-  );
+  )
 }
+
+export default Home
