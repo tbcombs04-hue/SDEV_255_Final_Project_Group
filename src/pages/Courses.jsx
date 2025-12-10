@@ -12,18 +12,21 @@ function Courses({ courses, onDelete }) {
               <th>Description</th>
               <th>Subject</th>
               <th>Credits</th>
+              <th>Teacher</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {courses.map((course) => (
-              <tr key={course.id}>
+              <tr key={course._id}>
                 <td>{course.name}</td>
                 <td>{course.description}</td>
                 <td>{course.subject}</td>
                 <td>{course.credits}</td>
+                <td>{course.teacher}</td>
                 <td>
                   <button onClick={() => onDelete(course.id)}>Delete</button>
+                 { /*<button onClick={() => ondevicemotion(course.id)}>Edit</button>*/}
                 </td>
               </tr>
             ))}

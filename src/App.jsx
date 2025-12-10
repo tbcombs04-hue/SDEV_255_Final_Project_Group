@@ -3,28 +3,44 @@ import Navbar from './components/Navbar.jsx'
 import Home from './pages/Home.jsx'
 import Courses from './pages/Courses.jsx'
 import AddCourse from './pages/AddCourse.jsx'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function App() {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      name: 'Intro to React',
-      description: 'Basics of React library',
-      subject: 'Web Development',
-      credits: 3,
-      teacher: 'Any Teacher'
+  const [courses, setCourses] = useState([]
+)
+  useEffect(() => {
+    fetch('http://localhost:5000/api/courses')
+    .then(res => res.json())
+    .then(data => setCourses(data))
+    .catch(err => console.error('Error fetching courses:', err));
+  }, [])
+
+  const addCourse = async (course) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/courses', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(course)
+      })
+      const newCourse = await res.json()
+      setCourses([...courses, newCourse])
+    } catch (err) {
+      console.error('Error adding course:', err)
     }
-  ])
-
-  const addCourse = (course) => {
-    setCourses([...courses, { ...course, id: Date.now() }])
+    
   }
 
-  const deleteCourse = (id) => {
-    setCourses(courses.filter((course) => course.id !== id))
+  const deleteCourse = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/api/courses/${id}`, {
+        method: 'DELETE'
+    })
+    
+    setCourses(courses.filter((course) => course._id !== id))
+  } catch (err) {
+    console.error('Error deleting course:', err)
   }
-
+  }
   return (
     <div>
       <Navbar />

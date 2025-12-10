@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function AddCourse({ onAdd }) {
@@ -6,7 +6,8 @@ function AddCourse({ onAdd }) {
     name: '',
     description: '',
     subject: '',
-    credits: ''
+    credits: '',
+    teacher: ''
   })
 
   const navigate = useNavigate()
@@ -15,19 +16,33 @@ function AddCourse({ onAdd }) {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!form.name || !form.description || !form.subject || !form.credits) {
       alert('Please fill in all fields.')
       return
     }
+    try {
+      const res = await fetch('http://localhost:5000/api/courses', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          ...form, credits: parseInt(form.credits, 10)
+        })
+        
+        
+    })
+      const newCourse = await res.json()
 
     onAdd({ ...form, credits: parseInt(form.credits) })
-    setForm({ name: '', description: '', subject: '', credits: '' })
+    setForm({ name: '', description: '', subject: '', credits: '', teacher: '' })
     navigate('/courses')
+  } catch (err) {
+    console.error('Error adding course:', err)
+    alert('Failed to add course. Please try again.')
   }
-
+  }
   return (
     <div className="page">
       <h1>Add a New Course</h1>
@@ -60,6 +75,13 @@ function AddCourse({ onAdd }) {
           value={form.credits}
           onChange={handleChange}
         />
+        <input
+          type="text"
+          name="teacher"
+          placeholder="Teacher"
+          value={form.teacher}
+          onChange={handleChange}
+          />
         <button type="submit">Add Course</button>
       </form>
     </div>
