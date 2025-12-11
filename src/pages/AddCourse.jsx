@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function AddCourse({ onAdd }) {
+function AddCourse({ onAdd, userRole}) {
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -42,6 +42,9 @@ function AddCourse({ onAdd }) {
     console.error('Error adding course:', err)
     alert('Failed to add course. Please try again.')
   }
+  }
+  if (userRole && userRole !== 'teacher') {
+    return <p> You do not have permission to add courses.</p>
   }
   return (
     <div className="page">

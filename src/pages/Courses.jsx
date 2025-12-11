@@ -1,9 +1,24 @@
-function Courses({ courses, onDelete }) {
+
+import React, { useState } from 'react'
+
+function Courses({ courses, onDelete, userRole }) {
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filterCourses = courses.filter(course =>
+    course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    course.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    course.description.toLowerCase().includes(searchTerm.toLowerCase())
+  )
   return (
     <div className="page">
       <h1>All Courses</h1>
-      {courses.length === 0 ? (
-        <p>No courses available.</p>
+      <input type="text" placeholder="Search courses..." 
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="search-input"
+      />
+      {filteredCourses.length === 0 ? (
+        <p>No courses match your search.</p>
       ) : (
         <table>
           <thead>
@@ -13,21 +28,23 @@ function Courses({ courses, onDelete }) {
               <th>Subject</th>
               <th>Credits</th>
               <th>Teacher</th>
-              <th>Action</th>
+              {userRole === 'teacher' && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
-            {courses.map((course) => (
+            {filteredCourses.map(course => (
               <tr key={course._id}>
                 <td>{course.name}</td>
                 <td>{course.description}</td>
                 <td>{course.subject}</td>
                 <td>{course.credits}</td>
                 <td>{course.teacher}</td>
-                <td>
-                  <button onClick={() => onDelete(course.id)}>Delete</button>
-                 { /*<button onClick={() => ondevicemotion(course.id)}>Edit</button>*/}
-                </td>
+                {userRole === 'teacher' && (
+                  <td>
+                    <button onClick={() => onDelete(course._id)}>Delete</button>
+                    {/* Future: <button onClick={() => onEdit(course._id)}>Edit</button> */}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

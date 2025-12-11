@@ -3,11 +3,13 @@ import Navbar from './components/Navbar.jsx'
 import Home from './pages/Home.jsx'
 import Courses from './pages/Courses.jsx'
 import AddCourse from './pages/AddCourse.jsx'
+import StudentSchedule from './pages/StudentSchedule.jsx'
 import { useState, useEffect } from 'react'
 
 function App() {
   const [courses, setCourses] = useState([]
 )
+const [userRole, setUserRole] = useState('student') // 'student' or 'teacher'
   useEffect(() => {
     fetch('http://localhost:5000/api/courses')
     .then(res => res.json())
@@ -43,17 +45,18 @@ function App() {
   }
   return (
     <div>
-      <Navbar />
+      <Navbar userRole={userRole} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
           path="/courses"
-          element={<Courses courses={courses} onDelete={deleteCourse} />}
+          element={<Courses courses={courses} onDelete={deleteCourse} userRole={userRole} />}
         />
         <Route
           path="/add-course"
-          element={<AddCourse onAdd={addCourse} />}
+          element={<AddCourse onAdd={addCourse} userRole={userRole} />}
         />
+        <Route path="/schedule" element={<StudentSchedule courses={courses} userRole = {userRole}/>} />
       </Routes>
     </div>
   )
