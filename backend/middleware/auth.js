@@ -23,7 +23,7 @@ exports.protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Get user from token
-    req.user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id);
 
     if (!req.user) {
       return res.status(401).json({
@@ -31,7 +31,8 @@ exports.protect = async (req, res, next) => {
         message: 'User not found'
       });
     }
-
+//attach user to request
+req.user = user;
     next();
   } catch (err) {
     return res.status(401).json({
