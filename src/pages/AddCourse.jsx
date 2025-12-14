@@ -38,14 +38,12 @@ function AddCourse({ onAdd, userRole}) {
     })
     const data = await res.json()
     if (!data.success) {
-      alert(data.message || 'Failed to add course.')
-      return
-    }
-      
-
     onAdd(data.course)
     setForm({ courseName: '', courseNumber: '', description: '', subjectArea: '', credits: '', semester: '' })
     navigate('/courses')
+  }else{
+    alert(data.message || 'Failed to add course.')
+  }
   } catch (err) {
     console.error('Error adding course:', err)
     alert('Failed to add course. Please try again.')

@@ -12,7 +12,7 @@ import WelcomeBanner from './components/WelcomeBanner.jsx'
 
 function App() {
   const [courses, setCourses] = useState([])
-
+const [enrollments, setEnrollments] = useState([])
 const [userRole, setUserRole] = useState(null) // null until loging
 const navigate = useNavigate()
 //Load courses
@@ -30,6 +30,20 @@ const navigate = useNavigate()
       try{
       const decoded = jwtDecode(token)
       setUserRole(decoded.role)
+      //f student, fetch enrollments
+      if (decoded.role === 'student') {
+        fetch(`http://localhost:5000/api/enrollments/user/${decoded.userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then(res => res.json())
+        .then(data => { if (data.success) {
+          setEnrollments(data.enrollments)
+      }
+      })
+        .catch(err => console.error('Error fetching enrollments:', err));
+      }
     } catch (err) {
       console.error('Invalid token:', err)
       localStorage.removeItem('token')
@@ -74,6 +88,7 @@ const navigate = useNavigate()
   const logout = () => {
     localStorage.removeItem('token')
     setUserRole(null)
+    setEnrollments([])
     navigate('/login')
   }
   return (
@@ -97,7 +112,7 @@ const navigate = useNavigate()
         //student-only route
         <Route path="/schedule" 
         element={<ProtectedRoute userRole={userRole} allowedRoles={['student']}>
-        <StudentSchedule courses={courses} userRole = {userRole}/>
+        <StudentSchedule enrollments={enrollments} userRole = {userRole}/>
         </ProtectedRoute>
         }
         />

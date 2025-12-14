@@ -38,11 +38,10 @@ function Courses({ courses, onDelete, userRole }) {
                 <td>{course.description}</td>
                 <td>{course.subjectArea}</td>
                 <td>{course.credits}</td>
-                <td>{course.teacher}</td>
+                <td>{course.teacher?.name}</td>
                 {userRole === 'teacher' && (
                   <td>
                     <button onClick={() => onDelete(course._id)}>Delete</button>
-                    <button onClick={() => onEdit(course._id)}>Edit</button> 
                   </td>
                 )}
               </tr>
