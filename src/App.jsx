@@ -96,7 +96,19 @@ const navigate = useNavigate()
       <Navbar userRole={userRole} logout={logout}/>
       <WelcomeBanner userRole={userRole} logout={logout}/>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Public auth page */}
+        <Route path="/auth" element={<AuthPage />} />
+
+        {/* Protected pages */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/courses"
           element={<Courses courses={courses} onDelete={deleteCourse} userRole={userRole} />}
@@ -122,7 +134,7 @@ const navigate = useNavigate()
         />
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

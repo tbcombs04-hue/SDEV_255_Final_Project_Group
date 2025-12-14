@@ -1,3 +1,4 @@
+/* Base */
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
@@ -5,6 +6,7 @@ body {
   color: #333;
 }
 
+/* Navbar (keep as-is) */
 .navbar {
   background-color: #333;
   padding: 1em;
@@ -28,30 +30,34 @@ body {
   text-decoration: underline;
 }
 
+/* Page wrapper for your normal app pages */
 .page {
   padding: 2rem;
 }
 
-table {
+/* ✅ Scope “app” form/table styles so they don't override auth page */
+.app-page table {
   width: 100%;
   border-collapse: collapse;
   background: white;
   margin-top: 1em;
 }
 
-th, td {
+.app-page th,
+.app-page td {
   padding: 0.75em;
   border: 1px solid #ccc;
 }
 
-input {
+/* Scope inputs/buttons to app pages only */
+.app-page input {
   display: block;
   margin-bottom: 1em;
   padding: 0.5em;
   width: 100%;
 }
 
-button {
+.app-page button {
   padding: 0.6em 1.2em;
   border: none;
   background-color: #4caf50;
@@ -61,6 +67,188 @@ button {
   border-radius: 5px;
 }
 
-button:hover {
+.app-page button:hover {
   background-color: #45a049;
 }
+
+/* =========================================================
+   AUTH UI (Login/Signup page + Welcome bar)
+   ========================================================= */
+
+:root{
+  --auth-bg: #0b1020;
+  --auth-card: rgba(255,255,255,.06);
+  --auth-border: rgba(255,255,255,.14);
+  --auth-text: rgba(255,255,255,.92);
+  --auth-muted: rgba(255,255,255,.70);
+  --auth-accent: #7c5cff;
+  --auth-accent2: #00d4ff;
+  --auth-shadow: 0 20px 80px rgba(0,0,0,.45);
+  --auth-radius: 18px;
+}
+
+/* Welcome bar (shown when logged in) */
+.welcome-bar{
+  padding: 14px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,.75);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.welcome-text{
+  font-size: 16px;
+}
+
+.logout-btn{
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.08);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.logout-btn:hover{
+  background: rgba(255,255,255,.16);
+}
+
+/* Auth page container */
+.auth-page{
+  min-height: calc(100vh - 58px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(900px 500px at 20% 10%, rgba(124,92,255,.28), transparent 55%),
+    radial-gradient(900px 500px at 80% 20%, rgba(0,212,255,.18), transparent 60%),
+    radial-gradient(900px 600px at 50% 90%, rgba(124,92,255,.12), transparent 60%),
+    var(--auth-bg);
+}
+
+/* Auth card */
+.auth-card{
+  width: min(460px, 100%);
+  background: var(--auth-card);
+  border: 1px solid var(--auth-border);
+  border-radius: var(--auth-radius);
+  box-shadow: var(--auth-shadow);
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  color: var(--auth-text);
+}
+
+.auth-card__header h1{
+  margin: 0 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--auth-text);
+}
+.auth-card__header p{
+  margin: 0 0 18px;
+  color: var(--auth-muted);
+}
+
+/* Tabs */
+.auth-tabs{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.auth-tab{
+  border: 1px solid var(--auth-border);
+  background: rgba(0,0,0,.18);
+  color: var(--auth-muted);
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.auth-tab:hover{
+  border-color: rgba(255,255,255,.25);
+  color: var(--auth-text);
+}
+
+.auth-tab--active{
+  background: linear-gradient(90deg, rgba(124,92,255,.35), rgba(0,212,255,.22));
+  color: var(--auth-text);
+  border-color: rgba(255,255,255,.25);
+}
+
+/* Auth form */
+.auth-form{ display: grid; gap: 14px; }
+
+.auth-field span{
+  display: block;
+  font-size: 13px;
+  color: var(--auth-muted);
+  margin-bottom: 6px;
+}
+
+/* IMPORTANT: auth inputs separate from app inputs */
+.auth-input{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--auth-border);
+  background: rgba(0,0,0,.22);
+  color: var(--auth-text);
+  outline: none;
+}
+
+.auth-input:focus{
+  border-color: rgba(124,92,255,.65);
+  box-shadow: 0 0 0 4px rgba(124,92,255,.18);
+}
+
+.auth-password{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.auth-ghost{
+  border: 1px solid var(--auth-border);
+  background: transparent;
+  color: var(--auth-muted);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.auth-ghost:hover{
+  color: var(--auth-text);
+  border-color: rgba(255,255,255,.25);
+}
+
+.auth-btn{
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  color: white;
+  background: linear-gradient(90deg, var(--auth-accent), var(--auth-accent2));
+}
+
+.auth-btn:hover{ filter: brightness(1.05); }
+
+.auth-msg{
+  margin: 0;
+  font-size: 14px;
+  color: var(--auth-muted);
+}
+
+.auth-msg--ok{ color: rgba(140, 255, 185, .95); }
+.auth-msg--bad{ color: rgba(255, 140, 140, .95); }

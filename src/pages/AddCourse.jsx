@@ -53,7 +53,7 @@ function AddCourse({ onAdd, userRole}) {
     return <p> You do not have permission to add courses.</p>
   }
   return (
-    <div className="page">
+    <div className="page app-page">
       <h1>Add a New Course</h1>
       <form onSubmit={handleSubmit}>
         <input

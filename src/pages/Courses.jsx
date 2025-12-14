@@ -10,7 +10,7 @@ function Courses({ courses, onDelete, userRole }) {
     course.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
   return (
-    <div className="page">
+    <div className="page app-page">
       <h1>All Courses</h1>
       <input type="text" placeholder="Search courses..." 
       value={searchTerm}

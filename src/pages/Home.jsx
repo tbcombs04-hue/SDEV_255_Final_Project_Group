@@ -1,6 +1,6 @@
 function Home() {
   return (
-    <div className="page">
+    <div className="page app-page">
       <h1>Welcome to the Course Manager</h1>
       <p>Use the navigation above to manage courses.</p>
     </div>
