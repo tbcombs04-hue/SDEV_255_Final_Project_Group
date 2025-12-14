@@ -63,7 +63,7 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    res.json({
       success: true,
       course
     });
@@ -98,7 +98,7 @@ router.post('/', [
   }
 
   try {
-    const { courseName, courseNumber, description, subjectArea, credits, maxStudents, semester, year } = req.body;
+    const { courseNumber } = req.body;
 
     // Check if course number already exists
     const existingCourse = await Course.findOne({ courseNumber });
@@ -111,19 +111,12 @@ router.post('/', [
 
     // Create course
     const course = await Course.create({
-      courseName,
-      courseNumber,
-      description,
-      subjectArea,
-      credits,
-      teacher: req.user.id,
-      maxStudents,
-      semester,
-      year
+      ...req.body,
+      teacher: req.user.id
     });
-
-    const populatedCourse = await Course.findById(course._id)
-      .populate('teacher', 'name email');
+//Populate teacher infor before returning
+    const populatedCourse = await Course.populate('teacher', 'name email');
+    
 
     res.status(201).json({
       success: true,
@@ -160,7 +153,7 @@ router.put('/:id', [
   }
 
   try {
-    let course = await Course.findById(req.params.id);
+    const course = await Course.findByIdAndUpdate(req.params.id, req.body, {new: true});
 
     if (!course) {
       return res.status(404).json({
@@ -168,43 +161,21 @@ router.put('/:id', [
         message: 'Course not found'
       });
     }
-
-    // OPTIONAL: Uncomment below to restrict editing to course creator only
-    // if (course.teacher.toString() !== req.user.id) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: 'Not authorized to update this course'
-    //   });
-    // }
-
-    const { courseName, courseNumber, description, subjectArea, credits, maxStudents, semester, year } = req.body;
-
-    // Update course
-    course = await Course.findByIdAndUpdate(
-      req.params.id,
-      { courseName, courseNumber, description, subjectArea, credits, maxStudents, semester, year },
-      { new: true, runValidators: true }
-    ).populate('teacher', 'name email');
-
-    res.status(200).json({
-      success: true,
-      course
-    });
+    res.json({ success: true, course });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while updating course'
-    });
+    res.status(500).json({ success: false, message: 'Server error while updating course' });
   }
-});
+}) 
+
+   
 
 // @route   DELETE /api/courses/:id
 // @desc    Delete a course (Teachers only - initially any teacher, later only course creator)
 // @access  Private (Teacher)
 router.delete('/:id', protect, authorize('teacher'), async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findByIdAndDelete(req.params.id);
 
     if (!course) {
       return res.status(404).json({
@@ -212,29 +183,14 @@ router.delete('/:id', protect, authorize('teacher'), async (req, res) => {
         message: 'Course not found'
       });
     }
-
-    // OPTIONAL: Uncomment below to restrict deletion to course creator only
-    // if (course.teacher.toString() !== req.user.id) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: 'Not authorized to delete this course'
-    //   });
-    // }
-
-    await Course.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: 'Course deleted successfully'
-    });
-  } catch (error) {
+    res.json({ success: true, message: 'Course deleted' });
+  }catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while deleting course'
-    });
+    res.status(500).json({ success: false, message: 'Server error while deleting course' });
   }
-});
+})
+
+    
 
 // @route   GET /api/courses/teacher/my-courses
 // @desc    Get courses created by the logged-in teacher

@@ -1,61 +1,100 @@
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
-import Home from "./pages/Home.jsx";
-import Courses from "./pages/Courses.jsx";
-import AddCourse from "./pages/AddCourse.jsx";
-import AuthPage from "./AuthPage.jsx";
-import ProtectedRoute from "./ProtectedRoute.jsx";
-import { useAuth } from "./AuthContext.jsx";
-import { useState } from "react";
+import { Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar.jsx'
+import Home from './pages/Home.jsx'
+import Courses from './pages/Courses.jsx'
+import AddCourse from './pages/AddCourse.jsx'
+import StudentSchedule from './pages/StudentSchedule.jsx'
+import LoginPage from './pages/LoginPage.jsx'
+import { useState, useEffect } from 'react'
+import jwtDecode from 'jwt-decode'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+import WelcomeBanner from './components/WelcomeBanner.jsx'
 
 function App() {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      name: "Intro to React",
-      description: "Basics of React library",
-      subject: "Web Development",
-      credits: 3,
-      teacher: "Any Teacher",
-    },
-  ]);
+  const [courses, setCourses] = useState([])
+const [enrollments, setEnrollments] = useState([])
+const [userRole, setUserRole] = useState(null) // null until loging
+const navigate = useNavigate()
+//Load courses
+ useEffect(() => {
+    fetch('http://localhost:5000/api/courses')
+    .then(res => res.json())
+    .then(data => setCourses(data.courses))
+    .catch(err => console.error('Error fetching courses:', err));
+  }, [])
 
-  const addCourse = (course) => {
-    setCourses([...courses, { ...course, id: Date.now() }]);
-  };
-
-  const deleteCourse = (id) => {
-    setCourses(courses.filter((course) => course.id !== id));
-  };
-
-  const { isAuthed, user, logout, loading } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/auth", { replace: true });
-  };
-
-  // Optional: show a simple loading screen while auth loads from localStorage
-  if (loading) {
-    return <div style={{ padding: 20 }}>Loading...</div>;
+  //on app load, ceck for token and set role
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      try{
+      const decoded = jwtDecode(token)
+      setUserRole(decoded.role)
+      //f student, fetch enrollments
+      if (decoded.role === 'student') {
+        fetch(`http://localhost:5000/api/enrollments/user/${decoded.userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then(res => res.json())
+        .then(data => { if (data.success) {
+          setEnrollments(data.enrollments)
+      }
+      })
+        .catch(err => console.error('Error fetching enrollments:', err));
+      }
+    } catch (err) {
+      console.error('Invalid token:', err)
+      localStorage.removeItem('token')
+    }
   }
-
+}, [])
+// Add course
+  const addCourse = async (course) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/courses', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(course)
+      })
+      const data = await res.json()
+      if(data.success){
+      setCourses([...courses, data.course])
+      }
+    } catch (err) {
+      console.error('Error adding course:', err)
+    }
+    
+  }
+// Delete course
+  const deleteCourse = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/api/courses/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+    
+    setCourses(courses.filter((course) => course._id !== id))
+  } catch (err) {
+    console.error('Error deleting course:', err)
+  }
+  }
+  //Logout flow
+  const logout = () => {
+    localStorage.removeItem('token')
+    setUserRole(null)
+    setEnrollments([])
+    navigate('/login')
+  }
   return (
     <div>
-      {isAuthed && (
-        <header className="welcome-bar">
-          <span className="welcome-text">
-            Welcome, <strong>{user?.name || "User"}</strong> 👋
-          </span>
-          <button className="logout-btn" type="button" onClick={handleLogout}>
-            Log Out
-          </button>
-        </header>
-      )}
-
-      <Navbar />
-
+      <Navbar userRole={userRole} logout={logout}/>
+      <WelcomeBanner userRole={userRole} logout={logout}/>
       <Routes>
         {/* Public auth page */}
         <Route path="/auth" element={<AuthPage />} />
@@ -72,26 +111,26 @@ function App() {
 
         <Route
           path="/courses"
-          element={
-            <ProtectedRoute>
-              <Courses courses={courses} onDelete={deleteCourse} />
-            </ProtectedRoute>
-          }
+          element={<Courses courses={courses} onDelete={deleteCourse} userRole={userRole} />}
         />
-
+        //teacher-only route
         <Route
           path="/add-course"
-          element={
-            <ProtectedRoute>
-              <AddCourse onAdd={addCourse} />
-            </ProtectedRoute>
+          element={<ProtectedRoute userRole={userRole} allowedRoles={['teacher']}>
+          <AddCourse onAdd={addCourse} userRole={userRole} />
+          </ProtectedRoute>
           }
         />
-
-        {/* Fallback */}
+        //student-only route
+        <Route path="/schedule" 
+        element={<ProtectedRoute userRole={userRole} allowedRoles={['student']}>
+        <StudentSchedule enrollments={enrollments} userRole = {userRole}/>
+        </ProtectedRoute>
+        }
+        />
         <Route
-          path="*"
-          element={<Navigate to={isAuthed ? "/" : "/auth"} replace />}
+          path="/login"
+          element={<LoginPage setUserRole={setUserRole} />}
         />
       </Routes>
     </div>

@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const connectDB = require('./config/db');
+const connectDB = require('../config/db');
 
 // Load env vars
 dotenv.config();
@@ -19,9 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const courseRoutes = require('./routes/courses');
-const enrollmentRoutes = require('./routes/enrollments');
+const authRoutes = require('../routes/auth');
+const courseRoutes = require('../routes/courses');
+const enrollmentRoutes = require('../routes/enrollments');
 
 // Mount routes
 app.use('/api/auth', authRoutes);

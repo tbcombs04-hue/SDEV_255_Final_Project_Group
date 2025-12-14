@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function AddCourse({ onAdd }) {
+function AddCourse({ onAdd, userRole}) {
   const [form, setForm] = useState({
-    name: '',
+    courseName: '',
+    courseNumber: '',
     description: '',
-    subject: '',
-    credits: ''
+    subjectArea: '',
+    credits: '',
+    semester: ''
   })
 
   const navigate = useNavigate()
@@ -15,28 +17,57 @@ function AddCourse({ onAdd }) {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!form.name || !form.description || !form.subject || !form.credits) {
+    if (!form.courseName || !form.courseNumber || !form.description || !form.subjectArea || !form.credits) {
       alert('Please fill in all fields.')
       return
     }
-
-    onAdd({ ...form, credits: parseInt(form.credits) })
-    setForm({ name: '', description: '', subject: '', credits: '' })
+    try {
+      const res = await fetch('http://localhost:5000/api/courses', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          ...form, credits: parseInt(form.credits, 10)
+        })
+        
+        
+    })
+    const data = await res.json()
+    if (!data.success) {
+    onAdd(data.course)
+    setForm({ courseName: '', courseNumber: '', description: '', subjectArea: '', credits: '', semester: '' })
     navigate('/courses')
+  }else{
+    alert(data.message || 'Failed to add course.')
   }
-
+  } catch (err) {
+    console.error('Error adding course:', err)
+    alert('Failed to add course. Please try again.')
+  }
+  }
+  if (userRole && userRole !== 'teacher') {
+    return <p> You do not have permission to add courses.</p>
+  }
   return (
     <div className="page app-page">
       <h1>Add a New Course</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          name="name"
+          CourseName="name"
           placeholder="Course Name"
-          value={form.name}
+          value={form.courseName}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="courseNumber"
+          placeholder="Course Number"
+          value={form.courseNumber}
           onChange={handleChange}
         />
         <input
@@ -48,9 +79,9 @@ function AddCourse({ onAdd }) {
         />
         <input
           type="text"
-          name="subject"
+          name="subjectArea"
           placeholder="Subject Area"
-          value={form.subject}
+          value={form.subjectArea}
           onChange={handleChange}
         />
         <input
@@ -60,6 +91,13 @@ function AddCourse({ onAdd }) {
           value={form.credits}
           onChange={handleChange}
         />
+        <input
+          type="text"
+          name="semester"
+          placeholder="Semester"
+          value={form.semester}
+          onChange={handleChange}
+          />
         <button type="submit">Add Course</button>
       </form>
     </div>
