@@ -66,7 +66,7 @@ function AddCourse({ onAdd }) {
   }
 
   return (
-    <div className="page">
+    <div className="page app-page">
       <h1>Add a New Course</h1>
       <p className="subtitle">Only teachers can add new courses to the system.</p>
       

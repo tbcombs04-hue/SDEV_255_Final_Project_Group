@@ -53,7 +53,7 @@ function Courses({ courses, onDelete, onUpdate, isTeacher, user }) {
   }
 
   return (
-    <div className="page">
+    <div className="page app-page">
       <h1>All Courses</h1>
       
       {!user && (
