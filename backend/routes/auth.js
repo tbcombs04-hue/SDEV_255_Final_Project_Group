@@ -45,7 +45,7 @@ router.post('/register', [
       teacherId: role === 'teacher' ? teacherId : undefined
     });
 
-    sendTokenResponse(user, 201, res);
+    await sendTokenResponse(user, 201, res);
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -92,7 +92,7 @@ router.post('/login', [
       });
     }
 
-    sendTokenResponse(user, 200, res);
+    await sendTokenResponse(user, 200, res);
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -107,7 +107,14 @@ router.post('/login', [
 // @access  Private
 router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id)
+      .populate({
+        path: 'registeredCourses',
+        populate: {
+          path: 'teacher',
+          select: 'name email'
+        }
+      });
     
     res.status(200).json({
       success: true,
@@ -117,7 +124,8 @@ router.get('/me', protect, async (req, res) => {
         email: user.email,
         role: user.role,
         studentId: user.studentId,
-        teacherId: user.teacherId
+        teacherId: user.teacherId,
+        registeredCourses: user.registeredCourses || []
       }
     });
   } catch (error) {
@@ -130,4 +138,3 @@ router.get('/me', protect, async (req, res) => {
 });
 
 module.exports = router;
-

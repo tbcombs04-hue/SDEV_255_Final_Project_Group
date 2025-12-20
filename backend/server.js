@@ -22,11 +22,13 @@ app.use(cors());
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courses');
 const enrollmentRoutes = require('./routes/enrollments');
+const cartRoutes = require('./routes/cart');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/users/cart', cartRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -36,7 +38,8 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       courses: '/api/courses',
-      enrollments: '/api/enrollments'
+      enrollments: '/api/enrollments',
+      cart: '/api/users/cart'
     }
   });
 });
@@ -73,4 +76,3 @@ process.on('unhandledRejection', (err, promise) => {
 });
 
 module.exports = app;
-

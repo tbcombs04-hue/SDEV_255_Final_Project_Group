@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema({
     unique: true,
     sparse: true
   },
+  // Array to store registered courses (Shopping Cart)
+  registeredCourses: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course'
+  }],
   createdAt: {
     type: Date,
     default: Date.now
@@ -58,4 +63,3 @@ userSchema.methods.comparePassword = async function(enteredPassword) {
 };
 
 module.exports = mongoose.model('User', userSchema);
-
