@@ -38,15 +38,26 @@ function Courses({ courses, onDelete }) {
                   <td>{course.credits}</td>
                   <td className="actions-cell">
                     <button
-                      className={`btn ${inCart || enrolledAlready ? "btnDisabled" : "btnPrimary"}`}
+                      className={`btn ${
+                        inCart || enrolledAlready ? "btnDisabled" : "btnPrimary"
+                      }`}
                       onClick={() => addToCart(course)}
                       disabled={inCart || enrolledAlready}
-                      title={enrolledAlready ? "Already enrolled" : inCart ? "Already in cart" : "Add to cart"}
+                      title={
+                        enrolledAlready
+                          ? "Already enrolled"
+                          : inCart
+                          ? "Already in cart"
+                          : "Add to cart"
+                      }
                     >
                       {enrolledAlready ? "Enrolled" : inCart ? "Added" : "Add Course"}
                     </button>
 
-                    <button className="btn btnDanger" onClick={() => onDelete(course.id)}>
+                    <button
+                      className="btn btnDanger"
+                      onClick={() => onDelete(course.id)}
+                    >
                       Delete
                     </button>
                   </td>

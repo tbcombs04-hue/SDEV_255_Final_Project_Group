@@ -56,10 +56,10 @@ function App() {
     setCourses((prev) => prev.filter((course) => course.id !== id));
   };
 
-  const { isAuthed, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
-    return <div style={{ padding: 20 }}>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return (
@@ -80,11 +80,7 @@ function App() {
 
         <Route
           path="/courses"
-          element={
-            <ProtectedRoute>
-              <Courses courses={courses} onDelete={deleteCourse} />
-            </ProtectedRoute>
-          }
+          element={<Courses courses={courses} onDelete={deleteCourse} />}
         />
 
         <Route
@@ -105,10 +101,8 @@ function App() {
           }
         />
 
-        <Route
-          path="*"
-          element={<Navigate to={isAuthed ? "/" : "/auth"} replace />}
-        />
+        {/* Optional: redirect old /login route if it exists in links/bookmarks */}
+        <Route path="/login" element={<Navigate to="/auth" replace />} />
       </Routes>
     </div>
   );
