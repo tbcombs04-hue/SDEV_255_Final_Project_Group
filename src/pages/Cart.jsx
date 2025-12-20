@@ -3,10 +3,11 @@ import { useCart } from "../context/CartContext.jsx";
 import { useAuth } from "../AuthContext.jsx";
 
 function Cart() {
-  const { cart, removeFromCart, clearCart, enrollAll, enrolled, loading } = useCart();
+  const { cart, removeFromCart, clearCart, enrollAll, enrolled, loading, dropCourse } = useCart();
   const { user } = useAuth();
   const [msg, setMsg] = useState("");
   const [enrolling, setEnrolling] = useState(false);
+  const [droppingId, setDroppingId] = useState(null);
 
   const canEnroll = cart.length > 0 && !enrolling;
 
@@ -44,6 +45,26 @@ function Cart() {
   const handleClear = async () => {
     await clearCart();
     setMsg("");
+  };
+
+  const handleDrop = async (courseId, courseName) => {
+    if (!confirm(`Are you sure you want to drop "${courseName}"?`)) return;
+    
+    setDroppingId(courseId);
+    setMsg("");
+    
+    try {
+      const result = await dropCourse(courseId);
+      if (result.success) {
+        setMsg(`Successfully dropped "${courseName}"`);
+      } else {
+        setMsg(`Failed to drop course: ${result.message}`);
+      }
+    } catch (err) {
+      setMsg(`Error: ${err.message}`);
+    } finally {
+      setDroppingId(null);
+    }
   };
 
   if (loading) {
@@ -132,6 +153,7 @@ function Cart() {
                 <th>Description</th>
                 <th>Subject</th>
                 <th>Credits</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -146,6 +168,15 @@ function Cart() {
                   <td>{course.description}</td>
                   <td>{course.subject}</td>
                   <td>{course.credits}</td>
+                  <td>
+                    <button
+                      className="btn btnDanger"
+                      onClick={() => handleDrop(course.id, course.name)}
+                      disabled={droppingId === course.id}
+                    >
+                      {droppingId === course.id ? "Dropping..." : "Drop Course"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
