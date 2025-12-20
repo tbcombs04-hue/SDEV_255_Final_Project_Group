@@ -306,6 +306,310 @@ button {
 }
 
 /* =========================
+   Search Box
+========================= */
+.search-box {
+  margin-bottom: 1.5em;
+}
+
+.search-input {
+  max-width: 400px;
+  padding: 0.75em 1em;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1em;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* =========================
+   Course Details
+========================= */
+.course-number {
+  color: #64748b;
+  font-size: 0.9em;
+}
+
+.teacher-name {
+  color: #64748b;
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+.badge-full {
+  color: #dc2626;
+  font-weight: bold;
+  font-size: 0.85em;
+}
+
+/* =========================
+   Error Messages
+========================= */
+.error-msg {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75em 1em;
+  border-radius: 8px;
+  margin-bottom: 1em;
+}
+
+/* =========================
+   Home Cards
+========================= */
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5em;
+  margin: 2em 0;
+}
+
+.home-card {
+  background: white;
+  padding: 1.5em;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.home-card h2 {
+  margin-top: 0;
+  color: #1e3a5f;
+  font-size: 1.2em;
+}
+
+.card-stat {
+  font-size: 2em;
+  font-weight: bold;
+  color: #2563eb;
+  margin: 0.25em 0;
+}
+
+.home-info {
+  background: #f8fafc;
+  padding: 1.5em;
+  border-radius: 12px;
+  margin-top: 2em;
+}
+
+.home-info h3 {
+  margin-top: 0;
+  color: #1e3a5f;
+}
+
+.home-info ul {
+  margin: 0;
+  padding-left: 1.5em;
+  color: #64748b;
+}
+
+/* =========================
+   Nav Role Badge
+========================= */
+.nav-role {
+  font-size: 0.85em;
+  opacity: 0.8;
+  font-weight: normal;
+}
+
+/* =========================
+   Enrolled Section
+========================= */
+.enrolled-section {
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 2px solid #e2e8f0;
+}
+
+.enrolled-section h2 {
+  color: #16a34a;
+}
+
+/* =========================
+   Course Form
+========================= */
+.course-form {
+  background: white;
+  padding: 2em;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+}
+
+.course-form textarea {
+  width: 100%;
+  padding: 0.75em 1em;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.course-form textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1em;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1em;
+  margin-top: 1.5em;
+}
+
+/* =========================
+   Auth Page Enhancements
+========================= */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2em;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e2e8f0 100%);
+}
+
+.auth-card {
+  background: #1e3a5f;
+  padding: 2.5em;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.auth-card__header {
+  text-align: center;
+  margin-bottom: 1.5em;
+  color: white;
+}
+
+.auth-card__header h1 {
+  margin: 0 0 0.25em;
+  color: white;
+}
+
+.auth-card__header p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0.5em;
+  margin-bottom: 1.5em;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 0.75em;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-tab--active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+  color: white;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  color: white;
+}
+
+.auth-field span {
+  font-weight: 500;
+}
+
+.auth-input {
+  padding: 0.75em 1em;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1em;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: white;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.auth-password {
+  display: flex;
+  gap: 0.5em;
+}
+
+.auth-password .auth-input {
+  flex: 1;
+}
+
+.auth-ghost {
+  padding: 0.75em 1em;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.auth-ghost:hover {
+  border-color: white;
+  color: white;
+}
+
+.hint {
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.auth-btn {
+  padding: 1em;
+  background: white;
+  color: #1e3a5f;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1em;
+  cursor: pointer;
+  margin-top: 0.5em;
+}
+
+.auth-btn:hover {
+  background: #f8fafc;
+}
+
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
    Responsive
 ========================= */
 @media (max-width: 768px) {
@@ -321,5 +625,9 @@ button {
   table {
     display: block;
     overflow-x: auto;
+  }
+
+  .home-cards {
+    grid-template-columns: 1fr;
   }
 }

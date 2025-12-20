@@ -1,62 +1,67 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useCart } from "../context/CartContext.jsx";
 import { useAuth } from "../AuthContext.jsx";
 
 function Cart() {
-  const { cart, removeFromCart, clearCart, markEnrolled, enrolled } = useCart();
+  const { cart, removeFromCart, clearCart, enrollAll, enrolled, loading } = useCart();
   const { user } = useAuth();
   const [msg, setMsg] = useState("");
+  const [enrolling, setEnrolling] = useState(false);
 
-  const canEnroll = cart.length > 0;
+  const canEnroll = cart.length > 0 && !enrolling;
 
-  const alreadyEnrolledIds = useMemo(() => new Set(enrolled.map((c) => c.id)), [enrolled]);
-
-  const enroll = async () => {
+  const handleEnroll = async () => {
     setMsg("");
-
-    // UI-level duplicate protection (should already be prevented, but safe)
-    const toEnroll = cart.filter((c) => !alreadyEnrolledIds.has(c.id));
-    if (toEnroll.length === 0) {
-      setMsg("You're already enrolled in all courses currently in your cart.");
-      return;
-    }
+    setEnrolling(true);
 
     try {
-      // Optional backend (in-memory) — won’t break if server isn’t running.
-      const res = await fetch("http://localhost:3000/api/enrollments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userEmail: user?.email || "guest@example.com",
-          courseIds: toEnroll.map((c) => c.id),
-        }),
-      });
+      const result = await enrollAll();
 
-      if (res.ok) {
-        const data = await res.json();
-        const duplicates = data?.duplicates?.length || 0;
-        markEnrolled(toEnroll);
+      if (result.success) {
+        setMsg(`Successfully enrolled in ${result.enrolled.length} course(s)!`);
+      } else if (result.enrolled.length > 0) {
         setMsg(
-          duplicates > 0
-            ? `Enrolled! (${duplicates} duplicate request(s) were ignored.)`
-            : "Enrolled!"
+          `Enrolled in ${result.enrolled.length} course(s). ` +
+          `${result.failed.length} failed: ${result.failed.map((f) => f.reason).join(", ")}`
         );
-        return;
+      } else {
+        setMsg(`Enrollment failed: ${result.failed.map((f) => f.reason).join(", ")}`);
       }
-
-      // If server responded but not ok
-      markEnrolled(toEnroll);
-      setMsg("Enrolled! (Server validation failed, but UI updated.)");
-    } catch {
-      // If backend not running, still allow UI to progress.
-      markEnrolled(toEnroll);
-      setMsg("Enrolled! (Backend not running — UI updated.)");
+    } catch (err) {
+      setMsg(`Error: ${err.message}`);
+    } finally {
+      setEnrolling(false);
     }
   };
+
+  const handleRemove = async (courseId) => {
+    const result = await removeFromCart(courseId);
+    if (!result.success) {
+      setMsg(`Failed to remove: ${result.message}`);
+    }
+  };
+
+  const handleClear = async () => {
+    await clearCart();
+    setMsg("");
+  };
+
+  if (loading) {
+    return (
+      <div className="page app-page">
+        <h1>Cart</h1>
+        <p>Loading your cart...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="page app-page">
       <h1>Cart</h1>
+      
+      {user?.role === "teacher" && (
+        <p className="notice">Note: Teachers cannot enroll in courses. Cart is view-only.</p>
+      )}
 
       {msg && <p className="notice">{msg}</p>}
 
@@ -67,7 +72,7 @@ function Cart() {
           <table>
             <thead>
               <tr>
-                <th>Course Name</th>
+                <th>Course</th>
                 <th>Description</th>
                 <th>Subject</th>
                 <th>Credits</th>
@@ -77,12 +82,20 @@ function Cart() {
             <tbody>
               {cart.map((course) => (
                 <tr key={course.id}>
-                  <td>{course.name}</td>
+                  <td>
+                    <strong>{course.name}</strong>
+                    {course.courseNumber && (
+                      <span className="course-number"> ({course.courseNumber})</span>
+                    )}
+                  </td>
                   <td>{course.description}</td>
                   <td>{course.subject}</td>
                   <td>{course.credits}</td>
                   <td>
-                    <button className="btn btnDanger" onClick={() => removeFromCart(course.id)}>
+                    <button
+                      className="btn btnDanger"
+                      onClick={() => handleRemove(course.id)}
+                    >
                       Remove
                     </button>
                   </td>
@@ -92,14 +105,52 @@ function Cart() {
           </table>
 
           <div className="cart-actions">
-            <button className="btn btnPrimary" onClick={enroll} disabled={!canEnroll}>
-              Enroll Now
-            </button>
-            <button className="btn" onClick={clearCart}>
+            {user?.role === "student" && (
+              <button
+                className="btn btnPrimary"
+                onClick={handleEnroll}
+                disabled={!canEnroll}
+              >
+                {enrolling ? "Enrolling..." : "Enroll Now"}
+              </button>
+            )}
+            <button className="btn" onClick={handleClear} disabled={enrolling}>
               Clear Cart
             </button>
           </div>
         </>
+      )}
+
+      {/* Show enrolled courses */}
+      {enrolled.length > 0 && (
+        <div className="enrolled-section">
+          <h2>Enrolled Courses</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Description</th>
+                <th>Subject</th>
+                <th>Credits</th>
+              </tr>
+            </thead>
+            <tbody>
+              {enrolled.map((course) => (
+                <tr key={course.id}>
+                  <td>
+                    <strong>{course.name}</strong>
+                    {course.courseNumber && (
+                      <span className="course-number"> ({course.courseNumber})</span>
+                    )}
+                  </td>
+                  <td>{course.description}</td>
+                  <td>{course.subject}</td>
+                  <td>{course.credits}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

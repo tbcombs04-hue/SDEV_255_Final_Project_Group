@@ -1,47 +1,83 @@
-import { Link } from 'react-router-dom'
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../AuthContext.jsx";
+import { useCart } from "../context/CartContext.jsx";
 
-function Home({ user }) {
+function Home() {
+  const { user } = useAuth();
+  const { cart, enrolled } = useCart();
+
+  const isStudent = user?.role === "student";
+  const isTeacher = user?.role === "teacher";
+
   return (
-    <div className="page">
-      <div className="home-hero">
-        <h1>📚 Course Management System</h1>
-        {user ? (
-          <p>Welcome back, <strong>{user.name}</strong>! You are logged in as a <strong>{user.role}</strong>.</p>
-        ) : (
-          <p>Manage and browse courses with ease. Sign in to access all features.</p>
-        )}
-        <div className="hero-buttons">
-          <Link to="/courses" className="hero-btn primary">Browse Courses</Link>
-          {!user && (
-            <Link to="/login" className="hero-btn secondary">Login</Link>
-          )}
-          {user?.role === 'teacher' && (
-            <Link to="/add-course" className="hero-btn secondary">Add New Course</Link>
-          )}
-        </div>
-      </div>
+    <div className="page app-page home-page">
+      <h1>Welcome, {user?.name || "User"}!</h1>
       
-      <div className="features">
-        <div className="feature-card">
-          <div className="feature-icon">📖</div>
-          <h3>Browse Courses</h3>
-          <p>View all available courses, including course details, credits, and instructor information.</p>
+      <p className="subtitle">
+        You are logged in as a <strong>{user?.role}</strong>.
+      </p>
+
+      <div className="home-cards">
+        {isStudent && (
+          <>
+            <div className="home-card">
+              <h2>📚 Your Cart</h2>
+              <p className="card-stat">{cart.length} course(s)</p>
+              <p>Ready to enroll in these courses.</p>
+              <Link to="/cart" className="btn btnPrimary">
+                View Cart
+              </Link>
+            </div>
+
+            <div className="home-card">
+              <h2>✅ Enrolled Courses</h2>
+              <p className="card-stat">{enrolled.length} course(s)</p>
+              <p>Courses you&apos;re currently taking.</p>
+              <Link to="/cart" className="btn">
+                View Enrollments
+              </Link>
+            </div>
+          </>
+        )}
+
+        <div className="home-card">
+          <h2>🎓 Browse Courses</h2>
+          <p>Explore all available courses.</p>
+          <Link to="/courses" className="btn btnPrimary">
+            View Courses
+          </Link>
         </div>
-        
-        <div className="feature-card">
-          <div className="feature-icon">👨‍🏫</div>
-          <h3>Teacher Features</h3>
-          <p>Teachers can create, edit, and delete courses. Manage your curriculum with ease.</p>
-        </div>
-        
-        <div className="feature-card">
-          <div className="feature-icon">👨‍🎓</div>
-          <h3>Student Access</h3>
-          <p>Students can browse and view course information in a read-only format.</p>
-        </div>
+
+        {isTeacher && (
+          <div className="home-card">
+            <h2>➕ Create Course</h2>
+            <p>Add a new course for students.</p>
+            <Link to="/add-course" className="btn btnPrimary">
+              Add Course
+            </Link>
+          </div>
+        )}
+      </div>
+
+      <div className="home-info">
+        <h3>Quick Tips</h3>
+        {isStudent ? (
+          <ul>
+            <li>Browse courses and add them to your cart</li>
+            <li>Go to your cart to enroll in selected courses</li>
+            <li>Check course availability before enrolling</li>
+          </ul>
+        ) : (
+          <ul>
+            <li>Create new courses for students to enroll in</li>
+            <li>View and manage your existing courses</li>
+            <li>Monitor student enrollment numbers</li>
+          </ul>
+        )}
       </div>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

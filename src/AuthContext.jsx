@@ -1,8 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { authAPI } from "./api.js";
 
 const AuthContext = createContext(null);
-const STORAGE_KEY = "auth_state_v1";
+const TOKEN_KEY = "token";
+const USER_KEY = "user";
 
 function safeParse(json) {
   try {
@@ -13,45 +15,119 @@ function safeParse(json) {
 }
 
 function getInitialUser() {
-  const saved = safeParse(localStorage.getItem(STORAGE_KEY));
-  return saved?.user ?? null;
+  return safeParse(localStorage.getItem(USER_KEY));
+}
+
+function getInitialToken() {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function AuthProvider({ children }) {
-  // Initialize from localStorage without setState-in-effect
   const [user, setUser] = useState(getInitialUser);
-  const loading = false;
+  const [token, setToken] = useState(getInitialToken);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Persist to localStorage
+  // Persist to localStorage when user/token changes
   useEffect(() => {
-    if (user) localStorage.setItem(STORAGE_KEY, JSON.stringify({ user }));
-    else localStorage.removeItem(STORAGE_KEY);
-  }, [user]);
+    if (user && token) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  }, [user, token]);
 
-  // UI-only auth actions (backend teammate can replace later)
-  const login = async ({ email }) => {
-    const nameGuess = email?.split("@")?.[0] || "User";
-    setUser({ name: nameGuess, email });
+  // Verify token on mount (optional - check if still valid)
+  useEffect(() => {
+    const verifyToken = async () => {
+      if (!token) return;
+      
+      try {
+        const data = await authAPI.getMe();
+        if (data.success && data.user) {
+          setUser(data.user);
+        }
+      } catch {
+        // Token is invalid, clear auth
+        setUser(null);
+        setToken(null);
+      }
+    };
+
+    verifyToken();
+  }, []); // Only run on mount
+
+  const login = async ({ email, password }) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const data = await authAPI.login(email, password);
+      
+      if (data.success) {
+        setToken(data.token);
+        setUser(data.user);
+        return { success: true };
+      } else {
+        setError(data.message || "Login failed");
+        return { success: false, message: data.message };
+      }
+    } catch (err) {
+      const message = err.message || "Login failed";
+      setError(message);
+      return { success: false, message };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const signup = async ({ name, email }) => {
-    setUser({ name: name?.trim() || "User", email });
+  const signup = async ({ name, email, password, role = "student", studentId }) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const data = await authAPI.register({ name, email, password, role, studentId });
+      
+      if (data.success) {
+        setToken(data.token);
+        setUser(data.user);
+        return { success: true };
+      } else {
+        setError(data.message || "Registration failed");
+        return { success: false, message: data.message };
+      }
+    } catch (err) {
+      const message = err.message || "Registration failed";
+      setError(message);
+      return { success: false, message };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
     setUser(null);
+    setToken(null);
+    setError(null);
   };
+
+  const clearError = () => setError(null);
 
   const value = useMemo(
     () => ({
       user,
-      isAuthed: !!user,
+      token,
+      isAuthed: !!user && !!token,
       loading,
+      error,
       login,
       signup,
       logout,
+      clearError,
     }),
-    [user, loading]
+    [user, token, loading, error]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

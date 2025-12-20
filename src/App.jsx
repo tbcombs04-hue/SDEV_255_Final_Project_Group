@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar.jsx";
@@ -11,51 +11,6 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import { useAuth } from "./AuthContext.jsx";
 
 function App() {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      name: "Intro to React",
-      description: "Basics of the React library",
-      subject: "Web Development",
-      credits: 3,
-    },
-    {
-      id: 2,
-      name: "Node & Express",
-      description: "Build APIs using Express",
-      subject: "Web Development",
-      credits: 3,
-    },
-    {
-      id: 3,
-      name: "Database Fundamentals",
-      description: "Intro to relational databases",
-      subject: "Databases",
-      credits: 3,
-    },
-  ]);
-
-  const addCourse = (course) => {
-    const credits = Number.isFinite(course.credits)
-      ? course.credits
-      : parseInt(course.credits, 10);
-
-    setCourses((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        name: course.name?.trim() || "Untitled Course",
-        description: course.description?.trim() || "",
-        subject: course.subject?.trim() || "",
-        credits: Number.isFinite(credits) ? credits : 0,
-      },
-    ]);
-  };
-
-  const deleteCourse = (id) => {
-    setCourses((prev) => prev.filter((course) => course.id !== id));
-  };
-
   const { loading } = useAuth();
 
   if (loading) {
@@ -78,20 +33,20 @@ function App() {
           }
         />
 
-        <Route
-          path="/courses"
-          element={<Courses courses={courses} onDelete={deleteCourse} />}
-        />
+        {/* Courses page - public viewing */}
+        <Route path="/courses" element={<Courses />} />
 
+        {/* Add Course - protected, teachers only */}
         <Route
           path="/add-course"
           element={
-            <ProtectedRoute>
-              <AddCourse onAdd={addCourse} />
+            <ProtectedRoute requiredRole="teacher">
+              <AddCourse />
             </ProtectedRoute>
           }
         />
 
+        {/* Cart - protected, students only */}
         <Route
           path="/cart"
           element={
@@ -101,7 +56,7 @@ function App() {
           }
         />
 
-        {/* Optional: redirect old /login route if it exists in links/bookmarks */}
+        {/* Redirect old /login route */}
         <Route path="/login" element={<Navigate to="/auth" replace />} />
       </Routes>
     </div>

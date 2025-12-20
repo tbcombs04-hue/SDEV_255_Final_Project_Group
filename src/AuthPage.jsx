@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
 
 export default function AuthPage() {
-  const { login, signup } = useAuth();
+  const { login, signup, error: authError, clearError, loading } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,6 +16,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [role, setRole] = useState("student");
 
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -24,26 +25,43 @@ export default function AuthPage() {
 
   const passwordsMatch = isLogin ? true : password === confirm;
 
+  const handleModeChange = (newMode) => {
+    setMode(newMode);
+    setError("");
+    clearError();
+  };
+
   async function onSubmit(e) {
     e.preventDefault();
     setError("");
+    clearError();
 
     if (!email.trim()) return setError("Please enter your email.");
     if (!password) return setError("Please enter your password.");
 
     if (!isLogin) {
       if (!name.trim()) return setError("Please enter your name.");
-      if (password.length < 8) return setError("Password must be at least 8 characters.");
+      if (password.length < 6) return setError("Password must be at least 6 characters.");
       if (!passwordsMatch) return setError("Passwords do not match.");
 
-      await signup({ name, email, password });
-      navigate(redirectTo, { replace: true });
+      const result = await signup({ name, email, password, role });
+      if (result.success) {
+        navigate(redirectTo, { replace: true });
+      } else {
+        setError(result.message || "Registration failed");
+      }
       return;
     }
 
-    await login({ email, password });
-    navigate(redirectTo, { replace: true });
+    const result = await login({ email, password });
+    if (result.success) {
+      navigate(redirectTo, { replace: true });
+    } else {
+      setError(result.message || "Login failed");
+    }
   }
+
+  const displayError = error || authError;
 
   return (
     <main className="auth-page">
@@ -57,7 +75,7 @@ export default function AuthPage() {
           <button
             type="button"
             className={`auth-tab ${isLogin ? "auth-tab--active" : ""}`}
-            onClick={() => setMode("login")}
+            onClick={() => handleModeChange("login")}
             aria-selected={isLogin}
           >
             Log In
@@ -65,7 +83,7 @@ export default function AuthPage() {
           <button
             type="button"
             className={`auth-tab ${!isLogin ? "auth-tab--active" : ""}`}
-            onClick={() => setMode("signup")}
+            onClick={() => handleModeChange("signup")}
             aria-selected={!isLogin}
           >
             Sign Up
@@ -74,17 +92,31 @@ export default function AuthPage() {
 
         <form className="auth-form" onSubmit={onSubmit}>
           {!isLogin && (
-            <label className="auth-field">
-              <span>Name</span>
-              <input
-                className="auth-input"
-                type="text"
-                autoComplete="name"
-                placeholder="Isaiah Snelling"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </label>
+            <>
+              <label className="auth-field">
+                <span>Name</span>
+                <input
+                  className="auth-input"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </label>
+
+              <label className="auth-field">
+                <span>Role</span>
+                <select
+                  className="auth-input"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                </select>
+              </label>
+            </>
           )}
 
           <label className="auth-field">
@@ -107,7 +139,7 @@ export default function AuthPage() {
                 className="auth-input"
                 type={showPass ? "text" : "password"}
                 autoComplete={isLogin ? "current-password" : "new-password"}
-                placeholder={isLogin ? "••••••••" : "At least 8 characters"}
+                placeholder={isLogin ? "••••••••" : "At least 6 characters"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -122,7 +154,7 @@ export default function AuthPage() {
             </div>
 
             {!isLogin && (
-              <small className="hint">Use 8+ characters. Numbers/symbols help.</small>
+              <small className="hint">Use 6+ characters.</small>
             )}
           </label>
 
@@ -157,14 +189,14 @@ export default function AuthPage() {
             </label>
           )}
 
-          {error && <p className="auth-msg auth-msg--bad">{error}</p>}
+          {displayError && <p className="auth-msg auth-msg--bad">{displayError}</p>}
 
           <button
             className="auth-btn"
             type="submit"
-            disabled={!isLogin && confirm.length > 0 && !passwordsMatch}
+            disabled={loading || (!isLogin && confirm.length > 0 && !passwordsMatch)}
           >
-            {isLogin ? "Log In" : "Create Account"}
+            {loading ? "Please wait..." : isLogin ? "Log In" : "Create Account"}
           </button>
         </form>
       </section>
