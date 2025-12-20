@@ -1,185 +1,111 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Navbar from './components/Navbar.jsx'
-import Home from './pages/Home.jsx'
-import Courses from './pages/Courses.jsx'
-import AddCourse from './pages/AddCourse.jsx'
-import Login from './pages/Login.jsx'
-import { useState, useEffect } from 'react'
+import React, { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-const API_URL = 'http://localhost:5000/api'
+import Navbar from "./components/Navbar.jsx";
+import Home from "./pages/Home.jsx";
+import Courses from "./pages/Courses.jsx";
+import AddCourse from "./pages/AddCourse.jsx";
+import Cart from "./pages/Cart.jsx";
+import AuthPage from "./AuthPage.jsx";
+import ProtectedRoute from "./ProtectedRoute.jsx";
+import { useAuth } from "./AuthContext.jsx";
 
 function App() {
-  const [courses, setCourses] = useState([])
-  const [user, setUser] = useState(null)
-  const [token, setToken] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [courses, setCourses] = useState([
+    {
+      id: 1,
+      name: "Intro to React",
+      description: "Basics of the React library",
+      subject: "Web Development",
+      credits: 3,
+    },
+    {
+      id: 2,
+      name: "Node & Express",
+      description: "Build APIs using Express",
+      subject: "Web Development",
+      credits: 3,
+    },
+    {
+      id: 3,
+      name: "Database Fundamentals",
+      description: "Intro to relational databases",
+      subject: "Databases",
+      credits: 3,
+    },
+  ]);
 
-  // Check for existing login on app load
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
-    }
-    setLoading(false)
-  }, [])
+  const addCourse = (course) => {
+    const credits = Number.isFinite(course.credits)
+      ? course.credits
+      : parseInt(course.credits, 10);
 
-  // Fetch courses from backend
-  useEffect(() => {
-    fetchCourses()
-  }, [])
+    setCourses((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: course.name?.trim() || "Untitled Course",
+        description: course.description?.trim() || "",
+        subject: course.subject?.trim() || "",
+        credits: Number.isFinite(credits) ? credits : 0,
+      },
+    ]);
+  };
 
-  const fetchCourses = async () => {
-    try {
-      const response = await fetch(`${API_URL}/courses`)
-      const data = await response.json()
-      
-      if (data.success) {
-        setCourses(data.courses)
-      }
-    } catch (error) {
-      console.error('Error fetching courses:', error)
-    }
-  }
+  const deleteCourse = (id) => {
+    setCourses((prev) => prev.filter((course) => course.id !== id));
+  };
 
-  const handleLogin = (userData, userToken) => {
-    setUser(userData)
-    setToken(userToken)
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    setUser(null)
-    setToken(null)
-  }
-
-  const addCourse = async (courseData) => {
-    try {
-      const response = await fetch(`${API_URL}/courses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(courseData)
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to add course')
-      }
-
-      // Refresh courses list
-      fetchCourses()
-      return { success: true }
-    } catch (error) {
-      console.error('Error adding course:', error)
-      return { success: false, message: error.message }
-    }
-  }
-
-  const deleteCourse = async (id) => {
-    try {
-      const response = await fetch(`${API_URL}/courses/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to delete course')
-      }
-
-      // Refresh courses list
-      fetchCourses()
-      return { success: true }
-    } catch (error) {
-      console.error('Error deleting course:', error)
-      alert(error.message)
-      return { success: false, message: error.message }
-    }
-  }
-
-  const updateCourse = async (id, courseData) => {
-    try {
-      const response = await fetch(`${API_URL}/courses/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(courseData)
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update course')
-      }
-
-      // Refresh courses list
-      fetchCourses()
-      return { success: true }
-    } catch (error) {
-      console.error('Error updating course:', error)
-      return { success: false, message: error.message }
-    }
-  }
-
-  // Check if user is a teacher
-  const isTeacher = user?.role === 'teacher'
+  const { loading } = useAuth();
 
   if (loading) {
-    return <div className="loading">Loading...</div>
+    return <div className="loading">Loading...</div>;
   }
 
   return (
     <div>
-      <Navbar user={user} onLogout={handleLogout} isTeacher={isTeacher} />
+      <Navbar />
+
       <Routes>
-        <Route path="/" element={<Home user={user} />} />
+        <Route path="/auth" element={<AuthPage />} />
+
         <Route
-          path="/courses"
+          path="/"
           element={
-            <Courses 
-              courses={courses} 
-              onDelete={deleteCourse}
-              onUpdate={updateCourse}
-              isTeacher={isTeacher}
-              user={user}
-            />
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/courses"
+          element={<Courses courses={courses} onDelete={deleteCourse} />}
+        />
+
         <Route
           path="/add-course"
           element={
-            isTeacher ? (
+            <ProtectedRoute>
               <AddCourse onAdd={addCourse} />
-            ) : (
-              <Navigate to="/courses" replace />
-            )
+            </ProtectedRoute>
           }
         />
+
         <Route
-          path="/login"
+          path="/cart"
           element={
-            user ? (
-              <Navigate to="/courses" replace />
-            ) : (
-              <Login onLogin={handleLogin} />
-            )
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
           }
         />
+
+        {/* Optional: redirect old /login route if it exists in links/bookmarks */}
+        <Route path="/login" element={<Navigate to="/auth" replace />} />
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

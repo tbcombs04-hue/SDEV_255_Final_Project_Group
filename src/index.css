@@ -10,19 +10,13 @@ body {
   line-height: 1.6;
 }
 
-/* Navbar Styles */
+/* =========================
+   Navbar Styles
+========================= */
 .navbar {
   background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
   padding: 1em 2em;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.nav-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
 .nav-list {
@@ -46,58 +40,22 @@ body {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-.nav-auth {
+.nav-right {
+  margin-left: auto;
   display: flex;
+  gap: 0.75em;
   align-items: center;
-  gap: 1em;
 }
 
-.welcome-message {
+.nav-user {
   color: white;
-  font-size: 0.95em;
+  font-weight: 600;
+  opacity: 0.9;
 }
 
-.welcome-message strong {
-  color: #7dd3fc;
-}
-
-.user-role {
-  color: #94a3b8;
-  font-size: 0.85em;
-  margin-left: 0.3em;
-  text-transform: capitalize;
-}
-
-.login-link {
-  color: white;
-  text-decoration: none;
-  background-color: #3b82f6;
-  padding: 0.5em 1.5em;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
-
-.login-link:hover {
-  background-color: #2563eb;
-}
-
-.logout-btn {
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  padding: 0.5em 1.2em;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.logout-btn:hover {
-  background-color: #dc2626;
-}
-
-/* Page Styles */
+/* =========================
+   Page Layout
+========================= */
 .page {
   padding: 2rem;
   max-width: 1200px;
@@ -114,7 +72,9 @@ body {
   margin-bottom: 1.5em;
 }
 
-/* Loading */
+/* =========================
+   Loading
+========================= */
 .loading {
   display: flex;
   justify-content: center;
@@ -124,7 +84,9 @@ body {
   color: #64748b;
 }
 
-/* Info Message */
+/* =========================
+   Messages
+========================= */
 .info-message {
   background-color: #e0f2fe;
   border-left: 4px solid #0ea5e9;
@@ -134,12 +96,6 @@ body {
   color: #0369a1;
 }
 
-.info-message a {
-  color: #0369a1;
-  font-weight: 600;
-}
-
-/* Error Message */
 .error-message {
   background-color: #fee2e2;
   border-left: 4px solid #ef4444;
@@ -149,7 +105,6 @@ body {
   color: #dc2626;
 }
 
-/* Success Message */
 .success-message {
   background-color: #dcfce7;
   border-left: 4px solid #22c55e;
@@ -159,7 +114,12 @@ body {
   color: #16a34a;
 }
 
-/* Table Styles */
+.auth-msg--ok { color: rgba(140, 255, 185, .95); }
+.auth-msg--bad { color: rgba(255, 140, 140, .95); }
+
+/* =========================
+   Tables
+========================= */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -175,7 +135,6 @@ th {
   color: white;
   padding: 1em;
   text-align: left;
-  font-weight: 600;
 }
 
 td {
@@ -191,7 +150,9 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Form Styles */
+/* =========================
+   Forms
+========================= */
 .form-group {
   margin-bottom: 1.2em;
 }
@@ -200,7 +161,6 @@ tbody tr:last-child td {
   display: block;
   margin-bottom: 0.5em;
   font-weight: 500;
-  color: #374151;
 }
 
 .form-row {
@@ -210,142 +170,95 @@ tbody tr:last-child td {
 }
 
 input, select {
-  display: block;
   width: 100%;
   padding: 0.75em 1em;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 1em;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 input:focus, select:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-input:disabled {
-  background-color: #f1f5f9;
-  cursor: not-allowed;
+/* =========================
+   Buttons
+========================= */
+button {
+  padding: 0.75em 1.5em;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
 }
 
-.edit-input {
-  padding: 0.5em;
+.btn {
+  padding: 0.5em 0.75em;
+  border: 1px solid #bbb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btnPrimary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.btnDanger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.btnSmall {
+  padding: 0.3em 0.6em;
   font-size: 0.9em;
 }
 
-/* Button Styles */
-button {
-  padding: 0.75em 1.5em;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  font-size: 1em;
+.btn:disabled,
+.btnDisabled:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.submit-btn, .login-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+.badge {
+  display: inline-block;
+  margin-left: 0.4em;
+  padding: 0.1em 0.5em;
+  border-radius: 999px;
+  background: #2563eb;
   color: white;
-  width: 100%;
+  font-size: 0.85em;
+}
+
+/* =========================
+   Actions
+========================= */
+.actions-cell {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cart-actions {
+  display: flex;
+  gap: 0.75em;
   margin-top: 1em;
 }
 
-.submit-btn:hover, .login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+.notice {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  padding: 0.75em;
+  border-radius: 8px;
 }
 
-.submit-btn:disabled, .login-btn:disabled {
-  background: #94a3b8;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 0.5em;
-}
-
-.edit-btn {
-  background-color: #f59e0b;
-  color: white;
-  padding: 0.5em 1em;
-  font-size: 0.9em;
-}
-
-.edit-btn:hover {
-  background-color: #d97706;
-}
-
-.delete-btn {
-  background-color: #ef4444;
-  color: white;
-  padding: 0.5em 1em;
-  font-size: 0.9em;
-}
-
-.delete-btn:hover {
-  background-color: #dc2626;
-}
-
-.save-btn {
-  background-color: #22c55e;
-  color: white;
-  padding: 0.5em 1em;
-  font-size: 0.9em;
-}
-
-.save-btn:hover {
-  background-color: #16a34a;
-}
-
-.cancel-btn {
-  background-color: #6b7280;
-  color: white;
-  padding: 0.5em 1em;
-  font-size: 0.9em;
-}
-
-.cancel-btn:hover {
-  background-color: #4b5563;
-}
-
-/* Login Container */
-.login-container {
-  max-width: 400px;
-  margin: 2em auto;
-  background: white;
-  padding: 2.5em;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-}
-
-.login-container h1 {
-  text-align: center;
-  margin-bottom: 0.25em;
-}
-
-.login-subtitle {
-  text-align: center;
-  color: #64748b;
-  margin-bottom: 2em;
-}
-
-/* Course Form */
-.course-form {
-  max-width: 600px;
-  background: white;
-  padding: 2em;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* Home Page */
+/* =========================
+   Home Page
+========================= */
 .home-hero {
   text-align: center;
   padding: 3em 2em;
@@ -353,18 +266,6 @@ button {
   color: white;
   border-radius: 16px;
   margin-bottom: 2em;
-}
-
-.home-hero h1 {
-  color: white;
-  font-size: 2.5em;
-  margin-bottom: 0.5em;
-}
-
-.home-hero p {
-  font-size: 1.2em;
-  opacity: 0.9;
-  margin-bottom: 1.5em;
 }
 
 .hero-buttons {
@@ -378,27 +279,16 @@ button {
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.3s ease;
 }
 
 .hero-btn.primary {
-  background-color: white;
+  background: white;
   color: #1e3a5f;
 }
 
-.hero-btn.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
 .hero-btn.secondary {
-  background-color: transparent;
-  color: white;
   border: 2px solid white;
-}
-
-.hero-btn.secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .features {
@@ -415,41 +305,19 @@ button {
   text-align: center;
 }
 
-.feature-card h3 {
-  color: #1e3a5f;
-  margin-bottom: 0.5em;
-}
-
-.feature-card p {
-  color: #64748b;
-}
-
-.feature-icon {
-  font-size: 2.5em;
-  margin-bottom: 0.5em;
-}
-
-/* Responsive */
+/* =========================
+   Responsive
+========================= */
 @media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    gap: 1em;
-  }
-  
   .nav-list {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-  
+
   table {
     display: block;
     overflow-x: auto;
