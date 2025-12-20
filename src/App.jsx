@@ -1,66 +1,74 @@
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Courses from "./pages/Courses.jsx";
 import AddCourse from "./pages/AddCourse.jsx";
+import Cart from "./pages/Cart.jsx";
 import AuthPage from "./AuthPage.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import { useAuth } from "./AuthContext.jsx";
-import { useState } from "react";
 
 function App() {
   const [courses, setCourses] = useState([
     {
       id: 1,
       name: "Intro to React",
-      description: "Basics of React library",
+      description: "Basics of the React library",
       subject: "Web Development",
       credits: 3,
-      teacher: "Any Teacher",
+    },
+    {
+      id: 2,
+      name: "Node & Express",
+      description: "Build APIs using Express",
+      subject: "Web Development",
+      credits: 3,
+    },
+    {
+      id: 3,
+      name: "Database Fundamentals",
+      description: "Intro to relational databases",
+      subject: "Databases",
+      credits: 3,
     },
   ]);
 
   const addCourse = (course) => {
-    setCourses([...courses, { ...course, id: Date.now() }]);
+    const credits = Number.isFinite(course.credits)
+      ? course.credits
+      : parseInt(course.credits, 10);
+
+    setCourses((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: course.name?.trim() || "Untitled Course",
+        description: course.description?.trim() || "",
+        subject: course.subject?.trim() || "",
+        credits: Number.isFinite(credits) ? credits : 0,
+      },
+    ]);
   };
 
   const deleteCourse = (id) => {
-    setCourses(courses.filter((course) => course.id !== id));
+    setCourses((prev) => prev.filter((course) => course.id !== id));
   };
 
-  const { isAuthed, user, logout, loading } = useAuth();
-  const navigate = useNavigate();
+  const { isAuthed, loading } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/auth", { replace: true });
-  };
-
-  // Optional: show a simple loading screen while auth loads from localStorage
   if (loading) {
     return <div style={{ padding: 20 }}>Loading...</div>;
   }
 
   return (
     <div>
-      {isAuthed && (
-        <header className="welcome-bar">
-          <span className="welcome-text">
-            Welcome, <strong>{user?.name || "User"}</strong> 👋
-          </span>
-          <button className="logout-btn" type="button" onClick={handleLogout}>
-            Log Out
-          </button>
-        </header>
-      )}
-
       <Navbar />
 
       <Routes>
-        {/* Public auth page */}
         <Route path="/auth" element={<AuthPage />} />
 
-        {/* Protected pages */}
         <Route
           path="/"
           element={
@@ -88,7 +96,15 @@ function App() {
           }
         />
 
-        {/* Fallback */}
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="*"
           element={<Navigate to={isAuthed ? "/" : "/auth"} replace />}

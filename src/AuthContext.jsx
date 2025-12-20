@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const AuthContext = createContext(null);
@@ -11,45 +12,41 @@ function safeParse(json) {
   }
 }
 
+function getInitialUser() {
+  const saved = safeParse(localStorage.getItem(STORAGE_KEY));
+  return saved?.user ?? null;
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // { name, email } | null
-  const [loading, setLoading] = useState(true);
+  // Initialize from localStorage without setState-in-effect
+  const [user, setUser] = useState(getInitialUser);
+  const loading = false;
 
-  // Load persisted auth on first mount
-  useEffect(() => {
-    const saved = safeParse(localStorage.getItem(STORAGE_KEY));
-    setUser(saved?.user ?? null);
-    setLoading(false);
-  }, []);
-
-  // Persist auth whenever user changes
+  // Persist to localStorage
   useEffect(() => {
     if (user) localStorage.setItem(STORAGE_KEY, JSON.stringify({ user }));
     else localStorage.removeItem(STORAGE_KEY);
   }, [user]);
 
   // UI-only auth actions (backend teammate can replace later)
-  const login = async ({ email, password }) => {
-    // TODO: replace with real API call
+  const login = async ({ email }) => {
     const nameGuess = email?.split("@")?.[0] || "User";
     setUser({ name: nameGuess, email });
   };
 
-  const signup = async ({ name, email, password }) => {
-    // TODO: replace with real API call
+  const signup = async ({ name, email }) => {
     setUser({ name: name?.trim() || "User", email });
   };
 
   const logout = async () => {
-    // TODO: replace with real API call if needed
     setUser(null);
   };
 
   const value = useMemo(
     () => ({
       user,
-      loading,
       isAuthed: !!user,
+      loading,
       login,
       signup,
       logout,

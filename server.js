@@ -5,10 +5,11 @@ const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(cors()); // allow frontend (Vite) to talk to backend
-app.use(express.json()); // parse JSON bodies
+app.use(cors());
+app.use(express.json());
 
-// ===== "Database" (for now just in-memory) =====
+// ===== In-memory data (swap for MongoDB later) =====
+let nextCourseId = 4;
 let courses = [
   {
     id: 1,
@@ -17,39 +18,55 @@ let courses = [
     subjectArea: "Computer Science",
     credits: 3,
   },
+  {
+    id: 2,
+    courseName: "Web Development",
+    description: "Build websites using HTML, CSS, and JavaScript.",
+    subjectArea: "Computer Science",
+    credits: 3,
+  },
+  {
+    id: 3,
+    courseName: "Database Systems",
+    description: "Introduction to databases and SQL.",
+    subjectArea: "Information Systems",
+    credits: 3,
+  },
 ];
 
-let nextId = 2;
+// enrollmentsByUserEmail: { [email]: Set(courseId) }
+const enrollmentsByUserEmail = new Map();
 
-// ✅ Root route so http://localhost:3000/ doesn't say "Cannot GET /"
-app.get("/", (req, res) => {
-  res.send("API is running. Try GET /api/courses");
-});
+// ===== Courses API =====
 
-// ===== CRUD ROUTES =====
-
-// GET: all courses
+// GET all courses
 app.get("/api/courses", (req, res) => {
-  res.json(courses);          // ✅ return the array, not a string
+  res.json(courses);
 });
 
-// POST: add new course
+// GET one course
+app.get("/api/courses/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const course = courses.find((c) => c.id === id);
+  if (!course) return res.status(404).json({ message: "Course not found" });
+  res.json(course);
+});
+
+// POST add new course
 app.post("/api/courses", (req, res) => {
   const { courseName, description, subjectArea, credits } = req.body;
 
   if (!courseName || !description || !subjectArea || credits === undefined) {
-    return res
-      .status(400)
-      .json({
-        message: "courseName, description, subjectArea, credits are required",
-      });
+    return res.status(400).json({
+      message: "courseName, description, subjectArea, credits are required",
+    });
   }
 
   const newCourse = {
-    id: nextId++,
-    courseName,
-    description,
-    subjectArea,
+    id: nextCourseId++,
+    courseName: String(courseName),
+    description: String(description),
+    subjectArea: String(subjectArea),
     credits: Number(credits),
   };
 
@@ -57,41 +74,80 @@ app.post("/api/courses", (req, res) => {
   res.status(201).json(newCourse);
 });
 
-// PUT: update existing course by id
+// PUT update a course
 app.put("/api/courses/:id", (req, res) => {
   const id = Number(req.params.id);
-  const index = courses.findIndex((c) => c.id === id);
-
-  if (index === -1) {
-    return res.status(404).json({ message: "Course not found" });
-  }
+  const idx = courses.findIndex((c) => c.id === id);
+  if (idx === -1) return res.status(404).json({ message: "Course not found" });
 
   const { courseName, description, subjectArea, credits } = req.body;
-  courses[index] = {
-    id,
-    courseName: courseName ?? courses[index].courseName,
-    description: description ?? courses[index].description,
-    subjectArea: subjectArea ?? courses[index].subjectArea,
-    credits: credits !== undefined ? Number(credits) : courses[index].credits,
+  courses[idx] = {
+    ...courses[idx],
+    ...(courseName !== undefined ? { courseName: String(courseName) } : {}),
+    ...(description !== undefined ? { description: String(description) } : {}),
+    ...(subjectArea !== undefined ? { subjectArea: String(subjectArea) } : {}),
+    ...(credits !== undefined ? { credits: Number(credits) } : {}),
   };
 
-  res.json(courses[index]);
+  res.json(courses[idx]);
 });
 
-// DELETE: remove course by id
+// DELETE a course
 app.delete("/api/courses/:id", (req, res) => {
   const id = Number(req.params.id);
-  const beforeLength = courses.length;
+  const before = courses.length;
   courses = courses.filter((c) => c.id !== id);
-
-  if (courses.length === beforeLength) {
-    return res.status(404).json({ message: "Course not found" });
-  }
-
-  res.json({ message: "Course deleted" });
+  if (courses.length === before) return res.status(404).json({ message: "Course not found" });
+  res.status(204).send();
 });
 
-// ===== Start server =====
+// ===== Enrollments API (duplicate-safe) =====
+
+// POST enroll (accepts courseIds array)
+app.post("/api/enrollments", (req, res) => {
+  const { userEmail, courseIds } = req.body;
+
+  if (!userEmail || !Array.isArray(courseIds)) {
+    return res.status(400).json({ message: "userEmail and courseIds[] are required" });
+  }
+
+  const email = String(userEmail).toLowerCase();
+  const set = enrollmentsByUserEmail.get(email) ?? new Set();
+
+  const added = [];
+  const duplicates = [];
+
+  for (const rawId of courseIds) {
+    const id = Number(rawId);
+    if (!Number.isFinite(id)) continue;
+
+    if (set.has(id)) {
+      duplicates.push(id);
+    } else {
+      set.add(id);
+      added.push(id);
+    }
+  }
+
+  enrollmentsByUserEmail.set(email, set);
+
+  res.json({
+    success: true,
+    added,
+    duplicates,
+    enrolledCourseIds: Array.from(set),
+  });
+});
+
+// GET enrollments for a user
+app.get("/api/enrollments", (req, res) => {
+  const email = String(req.query.userEmail || "").toLowerCase();
+  if (!email) return res.status(400).json({ message: "userEmail query param required" });
+
+  const set = enrollmentsByUserEmail.get(email) ?? new Set();
+  res.json({ userEmail: email, enrolledCourseIds: Array.from(set) });
+});
+
 app.listen(PORT, () => {
-  console.log(`API running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

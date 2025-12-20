@@ -252,3 +252,85 @@ body {
 
 .auth-msg--ok{ color: rgba(140, 255, 185, .95); }
 .auth-msg--bad{ color: rgba(255, 140, 140, .95); }
+
+
+/* Buttons + badges (standardized) */
+.btn {
+  padding: 0.5em 0.75em;
+  border: 1px solid #bbb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  filter: brightness(0.98);
+}
+
+.btnPrimary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.btnDanger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.btnDisabled:disabled,
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnSmall {
+  padding: 0.3em 0.6em;
+  font-size: 0.9em;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 0.4em;
+  padding: 0.1em 0.5em;
+  border-radius: 999px;
+  background: #2563eb;
+  color: white;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+/* Layout helpers */
+.actions-cell {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  gap: 0.75em;
+  align-items: center;
+}
+
+.nav-user {
+  color: white;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.cart-actions {
+  display: flex;
+  gap: 0.75em;
+  margin-top: 1em;
+}
+
+.notice {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  padding: 0.75em;
+  border-radius: 8px;
+}
